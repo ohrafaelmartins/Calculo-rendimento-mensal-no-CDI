@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculo CDI</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div>   
+        <h1>
+            <p><span id="lucro">Lucro:  </span></p>
+        </h1>
+    </div>
+    <div>
+        <p> <span> Meses: <span id="meses"></span></span> </p>
+        <p> <span> CDI Ano: <span id="cdi_ano"></span></span> </p>
+        <p> <span> CDI Mes: <span id="cdi_mes"></span></span> </p>
+        <p> <span> CDI: <span id="cdi"></span></span> </p>
+        <p> <span> CDI decimal: <span id="cdi_decimal"></span></span> </p>
+        <p> <span> Aporte Inicial: <span id="aporte_inicial"></span></span> </p>
+        <p> <span> Aporte Mensal: <span id="aporte_mensal"></span></span> </p>
+        <p> <span> IR: <span id="ir"></span></span> </p>
+        <p> <span> IOF: <span id="iof"></span></span> </p>
+        
+    </div>
+    <div>
+
+
+        <table id="myTable">
+            <thead>
+                <th>-</th>
+
+                <th> Aportes </th>
+
+                <th> desconto IR Mes </th>
+                <th> Patrimonio Mes </th>
+                <th> Descontos Mes </th>
+                <th> Rendimentos Bruto </th>
+                <th> Rendimento Liq </th>
+                <th> Descontos </th>
+                <th> Patrimonio </th>
+                <th> Mes </th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+<script>
+    let meses = 12;
+    let cdiAno = 13.65
+    let cdiMes = (cdiAno / 12)
+    let cdiPorcento = 110
+    let cdiDecial = (cdiMes / 100)
+    let AporteInicial = 67200;
+    let AporteMensal = 5000;
+    let Aportes = 0;
+    let ir = (16.563508 / 100);
+    let iof = (3.3669 / 100);
+    // MES
+    let rendimentoBrutoMes = 0
+    let rendimentoLiqMes = 0
+    let descontoIRMes = 0
+    let PatrimonioMes = 0
+    let somaDescontosMes = 0
+    // Ano
+    let somaRendimentosBruto = 0
+    let somaRendimentoLiq = 0
+    let somaDescontos = 0
+    let Patrimonio = AporteInicial;
+    let mes = 1
+    let data = [];
+    $(document).ready(function () {
+        for (let index = 0; index < meses; index++) {
+            Aportes += AporteMensal
+            rendimentoBrutoMes = ((AporteInicial + Aportes) * cdiDecial)
+            somaRendimentosBruto += rendimentoBrutoMes
+            descontoIRMes = rendimentoBrutoMes * ir
+            descontoIOF = rendimentoBrutoMes * iof
+            somaDescontosMes = descontoIRMes + descontoIOF
+            somaDescontos += somaDescontosMes
+            rendimentoLiqMes = rendimentoBrutoMes - somaDescontosMes
+            somaRendimentoLiq += rendimentoLiqMes
+            PatrimonioMes = AporteInicial + somaRendimentoLiq + Aportes
+            Patrimonio = PatrimonioMes;
+            data.push(
+                {
+                    meses: meses,
+                    cdiAno: cdiAno,
+                    cdiMes: cdiMes,
+                    cdiPorcento: cdiPorcento,
+                    cdiDecial: cdiDecial,
+                    AporteInicial: AporteInicial,
+                    AporteMensal: AporteMensal,
+                    Aportes: Aportes,
+                    ir: ir,
+                    iof: iof,
+                    rendimentoBrutoMes: rendimentoBrutoMes,
+                    rendimentoLiqMes: rendimentoLiqMes,
+                    descontoIRMes: descontoIRMes,
+                    PatrimonioMes: PatrimonioMes,
+                    somaDescontosMes: somaDescontosMes,
+                    somaRendimentosBruto: somaRendimentosBruto,
+                    somaRendimentoLiq: somaRendimentoLiq,
+                    somaDescontos: somaDescontos,
+                    Patrimonio: Patrimonio,
+                    mes: mes,
+                }
+            )
+            mes++
+        }
+
+        for (let item = 0; item < data.length; item++) {
+            const element = data[item];
+
+
+            $("#myTable tr:last").after(
+                "<tr><td>" +
+                "<td> " + element["Aportes"].toFixed(2) + "</td>" +
+                "<td> " + element["descontoIRMes"].toFixed(2) + "</td>" +
+                "<td> " + element["PatrimonioMes"].toFixed(2) + "</td>" +
+                "<td> " + element["somaDescontosMes"].toFixed(2) + "</td>" +
+                "<td> " + element["somaRendimentosBruto"].toFixed(2) + "</td>" +
+                "<td> " + element["somaRendimentoLiq"].toFixed(2) + "</td>" +
+                "<td> " + element["somaDescontos"].toFixed(2) + "</td>" +
+                "<td> " + element["Patrimonio"].toFixed(2) + "</td>" +
+                "<td> " + element["mes"].toFixed(2) + "</td>" +
+                "</td></tr>"
+            )
+
+        }
+
+
+        $("#myTable tr:last").after(
+            "<tr><td> Soma: " +
+            "<td> " + data[data.length - 1].Aportes.toFixed(2) + "</td>" +
+            "<td> " + data.reduce((curr, next) => { return curr + next.descontoIRMes }, 0).toFixed(2) + "</td>" +
+            "<td> " + data[data.length - 1].Patrimonio.toFixed(2) + "</td>" +
+            "<td> " + data.reduce((curr, next) => { return curr + next.somaDescontosMes }, 0).toFixed(2) + "</td>" +
+            "<td> " + data[data.length - 1].somaRendimentosBruto.toFixed(2) + "</td>" +
+            "<td> " + data[data.length - 1].somaRendimentoLiq.toFixed(2) + "</td>" +
+            "<td> " + data.reduce((curr, next) => { return curr + next.somaDescontos }, 0).toFixed(2) + "</td>" +
+            "<td> " + data[data.length - 1].Patrimonio.toFixed(2) + "</td>" +
+            "<td> - </td>" +
+            "</td></tr>"
+        )
+
+        $("#meses").append(data[data.length - 1].meses);
+        $("#cdi_ano").append(data[data.length - 1].cdiAno);
+        $("#cdi_mes").append(data[data.length - 1].cdiMes);
+        $("#cdi").append(data[data.length - 1].cdiPorcento);
+        $("#cdi_decimal").append(data[data.length - 1].cdiDecial);
+        $("#aporte_inicial").append(data[data.length - 1].AporteInicial);
+        $("#aporte_mensal").append(data[data.length - 1].AporteMensal);
+        $("#ir").append(data[data.length - 1].ir);
+        $("#iof").append(data[data.length - 1].iof);
+        
+
+        $("#lucro").append(
+            data[data.length - 1].somaRendimentoLiq.toFixed(0) * (cdiPorcento / 100)
+        );
+
+    });
+</script>
+
+</html>
